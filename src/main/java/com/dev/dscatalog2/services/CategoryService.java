@@ -17,6 +17,7 @@ import com.dev.dscatalog2.configs.MyMapper;
 import com.dev.dscatalog2.dto.CategoryDTO;
 import com.dev.dscatalog2.entities.Category;
 import com.dev.dscatalog2.repositories.CategoryRepository;
+import com.dev.dscatalog2.services.exception.ResourceNotFoundException;
 
 
 
@@ -33,9 +34,13 @@ public class CategoryService {
 	public List<CategoryDTO> findAll(){
 		List<CategoryDTO> listDto=new ArrayList<>();
 		
+//		listDto = categoryRepository.findAll().stream()
+//		.map(mapper::categoryToDto)
+//		.collect(Collectors.toList());	
+		
 		listDto = categoryRepository.findAll().stream()
-		.map(mapper::categoryToDto)
-		.collect(Collectors.toList());		
+				.map(x -> mapper.categoryToDto(x))
+				.collect(Collectors.toList());	
 		
 		return listDto;
 	}
@@ -48,8 +53,7 @@ public class CategoryService {
 		 * a exceção personalizada criada caso o 'obj' não traga valores 
 		 * na requisição. 
 		 * */		
-		Category entity = obj.orElseThrow(() -> new EntityNotFoundException("Entity not found"));
-		//Category entity=obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));//tem que implementar essa exception personalizada
+		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));		
 		
 		return mapper.categoryToDto(entity);
 	}
@@ -68,6 +72,7 @@ public class CategoryService {
 		CategoryDTO categoryDTO = null;
 		try {
 			Category entity = categoryRepository.getReferenceById(id);
+			System.out.println(entity);
 			entity.setName(dto.name());
 			entity = categoryRepository.save(entity);		
 			categoryDTO =  mapper.categoryToDto(entity);
@@ -75,6 +80,7 @@ public class CategoryService {
 		} catch (EntityNotFoundException e) {
 			//throw new ResourceNotFoundException("Id not found: "+id);
 			//throw new Exception("Id not found: "+id);
+			System.out.println("Falhou " + e.getMessage());
 		}
 		//return dto;
 		return categoryDTO;
