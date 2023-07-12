@@ -3,6 +3,7 @@ package com.dev.dscatalog2.entities;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -16,17 +17,17 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-//@Data
-@AllArgsConstructor
+
 @NoArgsConstructor
-@EqualsAndHashCode
+//@EqualsAndHashCode
 @Entity
 @Table(name="tb_product")
 public class Product implements Serializable {
@@ -55,6 +56,7 @@ public class Product implements Serializable {
 	
 	@Getter
 	@Setter
+	@Column(columnDefinition = "TEXT")
 	private String imgUrl;
 	
 	@Getter
@@ -63,12 +65,50 @@ public class Product implements Serializable {
 	private Instant date;
 	
 	@Getter
-	@ManyToMany(fetch = FetchType.EAGER)
+	@JsonManagedReference
+	@ManyToMany//(fetch = FetchType.LAZY)
 	@JoinTable(
 			name = "tb_product_category",
 			joinColumns = @JoinColumn(name = "product_id"),
 			inverseJoinColumns = @JoinColumn(name = "category_id"))
 	Set<Category> categories = new HashSet<>();
+	
+	public Product(Long id, String name, String description, Double price, String imgUrl, Instant date) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.price = price;
+		this.imgUrl = imgUrl;
+		this.date = date;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(date, description, id, imgUrl, name, price);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Product other = (Product) obj;
+		return Objects.equals(date, other.date) && Objects.equals(description, other.description)
+				&& Objects.equals(id, other.id) && Objects.equals(imgUrl, other.imgUrl)
+				&& Objects.equals(name, other.name) && Objects.equals(price, other.price);
+	}
+
+	@Override
+	public String toString() {
+		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
+				+ ", imgUrl=" + imgUrl + ", date=" + date + "]";
+	}
+	
+	
 	
 	
 

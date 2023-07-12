@@ -1,8 +1,6 @@
 package com.dev.dscatalog2.controllers;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
