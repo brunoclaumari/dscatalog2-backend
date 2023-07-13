@@ -41,8 +41,6 @@ public class ProductController {
 		//define o objeto de paginação
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		
-		//List<ProductDTO> list = new ArrayList<>();
-
 		Page<ProductDTO> list = productService.findAllPagedQuery(categoryId, name.trim(), pageRequest);
 		
 		return ResponseEntity.ok().body(list);

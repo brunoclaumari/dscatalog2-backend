@@ -2,7 +2,6 @@ package com.dev.dscatalog2.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +22,7 @@ import com.dev.dscatalog2.entities.Category;
 import com.dev.dscatalog2.entities.Product;
 import com.dev.dscatalog2.repositories.CategoryRepository;
 import com.dev.dscatalog2.repositories.ProductRepository;
+import com.dev.dscatalog2.services.exception.DatabaseException;
 import com.dev.dscatalog2.services.exception.ResourceNotFoundException;
 
 
@@ -82,11 +82,7 @@ public class ProductService {
 		 * a exceção personalizada criada caso o 'obj' não traga valores 
 		 * na requisição. 
 		 * */		
-		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));		
-//		for (Category cat : entity.getCategories()) {
-//			System.out.println(cat);
-//		}
-		//System.out.println(entity.getCategories());
+		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
 		
 		return mapper.productToDto(entity, entity.getCategories());
 	}
@@ -94,7 +90,7 @@ public class ProductService {
 	@Transactional
 	public ProductDTO insert(ProductDTO dto) {
 		Product entity = new Product();
-		entity.setName(dto.name());
+		entity = mapper.dtoToProduct(dto);		
 		entity = productRepository.save(entity);
 		
 		return mapper.productToDto(entity, entity.getCategories());
@@ -105,7 +101,7 @@ public class ProductService {
 		ProductDTO productDTO = null;
 		try {
 			Product entity = productRepository.getReferenceById(id);
-			//System.out.println(entity);
+			
 			entity = mapper.dtoToProduct(dto);
 			entity = productRepository.save(entity);		
 			productDTO =  mapper.productToDto(entity, entity.getCategories());
@@ -129,7 +125,7 @@ public class ProductService {
 			throw new ResourceNotFoundException("Id not found: " + id);
 		} catch (DataIntegrityViolationException e) {
 			//implementar exceção personalizada abaixo
-			//throw new DatabaseException("Integrity Violation!");
+			throw new DatabaseException("Integrity Violation!");
 		}
 		
 	}
