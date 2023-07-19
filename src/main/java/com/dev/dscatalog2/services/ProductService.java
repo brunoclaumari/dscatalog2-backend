@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,14 +62,27 @@ public class ProductService {
 		
 	}
 	
-	@Transactional(readOnly = true)
-	public Page<ProductDTO> findAllPagedQuery(Long categoryId, String name,PageRequest pageRequest){
+//	@Transactional(readOnly = true) //jeito antigo
+//	public Page<ProductDTO> findAllPagedQuery(Long categoryId, String name,PageRequest pageRequest){
+//		List<Category> categories = categoryId == 0 ? null : Arrays.asList(categoryRepository.findById(categoryId).get());
+//		
+//		Page<Product> list;
+//		
+//		//list = productRepository.findAll(pageRequest);
+//		list = productRepository.findAllPagedQuery(categories, name, pageRequest);
+//		
+//		return list.map(x -> mapper.productToDto(x, x.getCategories()));
+//		
+//	}
+	
+	@Transactional(readOnly = true)//jeito novo de paginação
+	public Page<ProductDTO> findAllPagedQuery(Long categoryId, String name,Pageable pageable){
 		List<Category> categories = categoryId == 0 ? null : Arrays.asList(categoryRepository.findById(categoryId).get());
 		
 		Page<Product> list;
 		
 		//list = productRepository.findAll(pageRequest);
-		list = productRepository.findAllPagedQuery(categories, name, pageRequest);
+		list = productRepository.findAllPagedQuery(categories, name, pageable);
 		
 		return list.map(x -> mapper.productToDto(x, x.getCategories()));
 		
@@ -107,9 +121,7 @@ public class ProductService {
 			productDTO =  mapper.productToDto(entity, entity.getCategories());
 			
 		} catch (EntityNotFoundException e) {
-			throw new ResourceNotFoundException("Id not found: "+ id);
-			//throw new Exception("Id not found: "+id);
-			//System.out.println("Falhou " + e.getMessage());
+			throw new ResourceNotFoundException("Id not found: "+ id);			
 		}
 		//return dto;
 		return productDTO;
