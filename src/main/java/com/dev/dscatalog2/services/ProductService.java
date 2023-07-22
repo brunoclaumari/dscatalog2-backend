@@ -132,11 +132,11 @@ public class ProductService {
 	public void delete(Long id) {
 		try {
 			productRepository.deleteById(id);
-		} catch (EmptyResultDataAccessException e) {
-			//implementar exceção personalizada abaixo
+		} catch (EmptyResultDataAccessException e) {//lançada na camada repository	
+			//exception abaixo da camada de service
 			throw new ResourceNotFoundException("Id not found: " + id);
-		} catch (DataIntegrityViolationException e) {
-			//implementar exceção personalizada abaixo
+		} catch (DataIntegrityViolationException e) {	//lançada na camada repository	
+			//exception abaixo da camada de service
 			throw new DatabaseException("Integrity Violation!");
 		}
 		
