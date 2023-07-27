@@ -10,10 +10,10 @@ import com.dev.dscatalog2.entities.Product;
 
 public class MyFactory {
 		
-	private static MyMapper mapper;
+	//private MyMapper mapper = new MyMapper();
 	
 	public static Product createInstanceProduct() {
-		Product product = new Product(null, "PlayStation", "Console Play Station", 4500.0, "https://img.com/img.png", Instant.parse("2020-07-13T20:50:07.145Z"));
+		Product product = new Product(1L, "PlayStation", "Console Play Station", 4500.0, "https://img.com/img.png", Instant.parse("2020-07-13T20:50:07.145Z"));
 		product.getCategories().add(new Category(2L, "Electronics"));
 		
 		return product;
@@ -21,9 +21,13 @@ public class MyFactory {
 	
 	public static ProductDTO createInstanceProductDTO() {
 		Product product = createInstanceProduct();		
-		ProductDTO dto = mapper.productToDto(product, product.getCategories());
+		ProductDTO dto = getMapper().productToDto(product, product.getCategories());
 		
 		return dto;
+	}
+	
+	public static MyMapper getMapper() {
+		return new MyMapper();
 	}
 
 }

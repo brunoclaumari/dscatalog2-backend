@@ -14,22 +14,23 @@ import com.dev.dscatalog2.entities.Product;
 @Component
 public class MyMapper {
 	
-	
 	public CategoryDTO categoryToDto(Category category) {
 		return new CategoryDTO(category.getId(), category.getName());
 	}
+	
 	
 	public Category dtoToCategory(CategoryDTO dto) {
 		
 		return new Category(dto.id(), dto.name());
 	}
 	
+	
 	public ProductDTO productToDto(Product product, Set<Category> categories) {
 		
 		List<CategoryDTO> dtoCategories = new ArrayList<>();
 		if(categories != null && categories.size() > 0)
 			categories.forEach(x -> dtoCategories.add(categoryToDto(x)));
-		//System.out.println(categories);
+		
 		
 		return new ProductDTO(
 				product.getId(), 
@@ -39,8 +40,10 @@ public class MyMapper {
 				product.getImgUrl(), 
 				product.getDate() 
 				,dtoCategories
-				);
+				);		
+		
 	}
+	
 	
 	public Product dtoToProduct(ProductDTO dto) {
 		Product product = new Product();

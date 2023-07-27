@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +37,7 @@ public class ProductService {
 	private CategoryRepository categoryRepository;
 	
 	@Autowired
-	private MyMapper mapper;
+	private MyMapper myMapper;
 	
 	@Transactional(readOnly = true)
 	public List<ProductDTO> findAll(){
@@ -46,21 +45,12 @@ public class ProductService {
 
 		
 		listDto = productRepository.findAll().stream()
-				.map(x -> mapper.productToDto(x, x.getCategories()))
+				.map(x -> myMapper.productToDto(x, x.getCategories()))
 				.collect(Collectors.toList());	
 		
 		return listDto;
 	}
 	
-	@Transactional(readOnly = true)
-	public Page<ProductDTO> findAllPaged(PageRequest pageRequest){
-		Page<Product> list;
-		
-		list = productRepository.findAll(pageRequest);
-		
-		return list.map(x -> mapper.productToDto(x, x.getCategories()));
-		
-	}
 	
 //	@Transactional(readOnly = true) //jeito antigo
 //	public Page<ProductDTO> findAllPagedQuery(Long categoryId, String name,PageRequest pageRequest){
@@ -77,14 +67,15 @@ public class ProductService {
 	
 	@Transactional(readOnly = true)//jeito novo de paginação
 	public Page<ProductDTO> findAllPagedQuery(Long categoryId, String name,Pageable pageable){
-		List<Category> categories = categoryId == 0 ? null : Arrays.asList(categoryRepository.findById(categoryId).get());
+		List<Category> categories = categoryId == 0L ? null : Arrays.asList(categoryRepository.findById(categoryId).get());
 		
-		Page<Product> list;
+		Page<Product> list;		
 		
-		//list = productRepository.findAll(pageRequest);
 		list = productRepository.findAllPagedQuery(categories, name, pageable);
 		
-		return list.map(x -> mapper.productToDto(x, x.getCategories()));
+		//if(list != null && list.getContent().size() > 0)
+		return list.map(x -> myMapper.productToDto(x, x.getCategories()));
+		
 		
 	}
 	
@@ -97,17 +88,21 @@ public class ProductService {
 		 * na requisição. 
 		 * */		
 		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+		System.out.println("Produtos teste ent: " + entity);
+		//MyMapper mapp = new MyMapper();
 		
-		return mapper.productToDto(entity, entity.getCategories());
+		ProductDTO productDTO = this.myMapper.productToDto(entity, entity.getCategories());
+		
+		return productDTO;
 	}
 	
 	@Transactional
 	public ProductDTO insert(ProductDTO dto) {
 		Product entity = new Product();
-		entity = mapper.dtoToProduct(dto);		
+		entity = myMapper.dtoToProduct(dto);		
 		entity = productRepository.save(entity);
 		
-		return mapper.productToDto(entity, entity.getCategories());
+		return myMapper.productToDto(entity, entity.getCategories());
 	}
 
 	@Transactional
@@ -116,9 +111,9 @@ public class ProductService {
 		try {
 			Product entity = productRepository.getReferenceById(id);
 			
-			entity = mapper.dtoToProduct(dto);
+			entity = myMapper.dtoToProduct(dto);
 			entity = productRepository.save(entity);		
-			productDTO =  mapper.productToDto(entity, entity.getCategories());
+			productDTO =  myMapper.productToDto(entity, entity.getCategories());
 			
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException("Id not found: "+ id);			
